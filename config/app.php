@@ -56,4 +56,9 @@ return [
         App\Providers\AppServiceProvider::class,
     ],
 
+    'usableComposes' => [
+        app_path('../tmp/laradock/docker-compose.yml'),
+        app_path('../custom-services/docker-compose.yml')
+    ]
+
 ];
