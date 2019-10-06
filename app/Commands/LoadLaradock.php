@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Generator\LaradockDownloader;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
@@ -12,7 +13,7 @@ class LoadLaradock extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'laradock:load';
 
     /**
      * The description of the command.
@@ -25,10 +26,14 @@ class LoadLaradock extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function handle()
     {
-        //
+        $version = $this->ask("Which commit of Laradock to use?", "master");
+        /** @var LaradockDownloader $downloader */
+        $downloader = app()->make(LaradockDownloader::class);
+        $downloader->download($version);
     }
 
     /**
