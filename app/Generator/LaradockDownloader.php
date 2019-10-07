@@ -25,7 +25,7 @@ class LaradockDownloader
      */
     private function setVersion($path, $version)
     {
-        shell_exec('cd ' . $path . ' && git reset --hard ' . $version);
+        shell_exec('cd ' . $path . '; git checkout ' . $version);
         return $path;
     }
 
@@ -40,7 +40,7 @@ class LaradockDownloader
     }
 
     public function cpEnv($path) {
-        copy($path.'/env.example', $path.'/.env');
+        copy($path.'/env-example', $path.'/.env');
     }
 
     /**

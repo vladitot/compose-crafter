@@ -30,6 +30,7 @@ class LoadLaradock extends Command
      */
     public function handle()
     {
+        shell_exec('rm -rf tmp/laradock');
         $version = $this->ask("Which commit of Laradock to use?", "master");
         /** @var LaradockDownloader $downloader */
         $downloader = app()->make(LaradockDownloader::class);

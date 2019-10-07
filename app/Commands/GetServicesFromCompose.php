@@ -51,7 +51,7 @@ class GetServicesFromCompose extends Command
 
         $manager->emitNewComposeAndDockerfiles();
 
-        $manager->getAllVariables();
+        $manager->collectEnvVariables();
 
         foreach ($manager->getCollectedServices() as $collectedService) {
             if ($addons = $manager->showAddons($collectedService)) {
@@ -65,6 +65,7 @@ class GetServicesFromCompose extends Command
             }
         }
 
+        $manager->emitEnvFile();
 
 
     }

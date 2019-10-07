@@ -13,7 +13,9 @@ class DockerComposeManager
 
     private $output = ['version' => '', 'services' => [], 'networks'=>[], 'volumes'=>[]];
 
-    private $env = [];
+    private $originalEnvs = [];
+
+    private $outputEnv = [];
 
     public function __construct($files)
     {
@@ -29,13 +31,19 @@ class DockerComposeManager
 
             $envpath = dirname($file).'/.env';
 
-            foreach (file($envpath) as $line) {
-                $middlePos = strpos($line, '=');
-                $key = substr(0, $middlePos, $line);
-                $value = substr($middlePos+1, $line);
+            if (file_exists($envpath)) {
+                foreach (file($envpath) as $line) {
+                    $middlePos = strpos($line, '=');
+                    if ($middlePos!==false) {
+                        $key = substr($line, 0, $middlePos);
+                        $value = '"'.str_replace(['"', "\n"], ['\\"', ''], substr($line, $middlePos+1)).'"';
+                        $this->originalEnvs[$key]=$value;
+                    }
 
-                dd($key, $value);
+                }
             }
+
+
 
         }
 
@@ -147,19 +155,42 @@ class DockerComposeManager
             file_put_contents(app_path('../output/docker/'.$collectedService).'/Dockerfile', "\n\n".$dockerfileAddon, FILE_APPEND);
         }
 
+        if (file_exists($tmpAddonPath.'/.env')) {
+            foreach (file($tmpAddonPath.'/.env') as $line) {
+                $middlePos = strpos($line, '=');
+                if ($middlePos!==false) {
+                    $key = substr($line, 0, $middlePos);
+                    $value = '"'.str_replace(['"', "\n"], ['\\"', ''], substr($line, $middlePos+1)).'"';
+                    $this->outputEnv[$key]=$value;
+                }
+            }
+            unlink($tmpAddonPath.'/.env');
+        }
+
 
         $this->copyDirectory($tmpAddonPath, app_path('../output/docker/'.$collectedService));
 
         shell_exec('rm -rf '. $tmpAddonPath);
     }
 
-    public function getAllVariables()
+    public function collectEnvVariables()
     {
-        $env = '';
         preg_match_all('/\${([a-zA-Z0-9_]+)}/', file_get_contents(app_path('../output').'/docker-compose.yml'), $matches);
 
         foreach ($matches[1] as $match) {
-
+            if (isset($this->originalEnvs[$match])) {
+                $this->outputEnv[$match] = $this->originalEnvs[$match];
+            }
         }
+    }
+
+    public function emitEnvFile() {
+
+        $fileContent = '';
+        foreach ($this->outputEnv as $key=>$value) {
+            $fileContent.=$key.'='.$value."\n";
+        }
+
+        file_put_contents(app_path('../output/.env'), $fileContent);
     }
 }
