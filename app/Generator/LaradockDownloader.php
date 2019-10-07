@@ -40,7 +40,7 @@ class LaradockDownloader
     }
 
     public function cpEnv($path) {
-        copy($path.'/.env.example', $path.'/.env');
+        copy($path.'/env.example', $path.'/.env');
     }
 
     /**
