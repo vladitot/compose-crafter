@@ -39,6 +39,10 @@ class LaradockDownloader
         return $path;
     }
 
+    public function cpEnv($path) {
+        copy($path.'/.env.example', $path.'/.env');
+    }
+
     /**
      * @param $version
      * @param string $path
@@ -48,6 +52,6 @@ class LaradockDownloader
         $this->downloadRepo($path);
         $this->setVersion($path, $version);
         $this->removeGitSubDir($path);
-
+        $this->cpEnv($path);
     }
 }

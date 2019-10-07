@@ -51,6 +51,8 @@ class GetServicesFromCompose extends Command
 
         $manager->emitNewComposeAndDockerfiles();
 
+        $manager->getAllVariables();
+
         foreach ($manager->getCollectedServices() as $collectedService) {
             if ($addons = $manager->showAddons($collectedService)) {
                 $this->info("There are addons for ".$collectedService.'. Would you like to pick any of them?');

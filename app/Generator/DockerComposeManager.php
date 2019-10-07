@@ -13,6 +13,8 @@ class DockerComposeManager
 
     private $output = ['version' => '', 'services' => [], 'networks'=>[], 'volumes'=>[]];
 
+    private $env = [];
+
     public function __construct($files)
     {
         foreach ($files as $file) {
@@ -24,6 +26,17 @@ class DockerComposeManager
             if (isset($this->originalComposes[$file]['volumes'])) {
                 $this->output['volumes'] = array_merge($this->output['volumes'], $this->originalComposes[$file]['volumes']);
             }
+
+            $envpath = dirname($file).'/.env';
+
+            foreach (file($envpath) as $line) {
+                $middlePos = strpos($line, '=');
+                $key = substr(0, $middlePos, $line);
+                $value = substr($middlePos+1, $line);
+
+                dd($key, $value);
+            }
+
         }
 
     }
@@ -138,5 +151,15 @@ class DockerComposeManager
         $this->copyDirectory($tmpAddonPath, app_path('../output/docker/'.$collectedService));
 
         shell_exec('rm -rf '. $tmpAddonPath);
+    }
+
+    public function getAllVariables()
+    {
+        $env = '';
+        preg_match_all('/\${([a-zA-Z0-9_]+)}/', file_get_contents(app_path('../output').'/docker-compose.yml'), $matches);
+
+        foreach ($matches[1] as $match) {
+
+        }
     }
 }
